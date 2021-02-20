@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+    <!-- 1.配置component-scan 扫描service,mapper包 -->
+    <!-- 如不写,则在控制层的@Resource注解则指定不到对应的service类 -->
+    <context:component-scan base-package="com.service" />
+    <context:component-scan base-package="com.mapper" />
+
+    <!-- 2.配置 读取properties文件 jdbc.properties -->
+    <context:property-placeholder location="classpath:spring/db.properties" />
+
+    <!-- 3.配置 数据源 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/library?useUnicode=true;characterEncoding=UTF-8;zeroDateTimeBehavior=convertToNull;useSSL=false;allowMultiQueries=true" />
+        <property name="username" value="root" />
+        <property name="password" value="root" />
+    </bean>
+
+    <!-- 4.配置SqlSessionFactory对象 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 4.1.注入数据库连接池 -->
+        <property name="dataSource" ref="dataSource" />
+        <!-- 4.2.配置MyBaties全局配置文件:mybatis-config.xml -->
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml" />
+        <!-- 4.3.扫描entity包 使用别名 -->
+        <property name="typeAliasesPackage" value="com.entity" />
+        <!-- 4.4.扫描sql配置文件:mapper需要的xml文件
+        <property name="mapperLocations" value="classpath:com/dao/*.xml" /> -->
+    </bean>
+
+    <!-- 5.配置Mapper扫描 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 5.1.注入sqlSessionFactory -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+        <!-- 5.2.配置Mapper扫描 -->
+        <property name="basePackage" value="com.mapper" />
+    </bean>
+</beans>
